@@ -1,8 +1,16 @@
 {
     "name": "My PWA App",
     "short_name": "PWA",
+    "id": "/index.html",
     "start_url": "/index.html",
     "display": "standalone",
     "background_color": "#ffffff",
-    "theme_color": "#000000"
+    "theme_color": "#000000",
+    "icons": [
+        {
+            "src": "x144.png",
+            "sizes": "144x144",
+            "type": "image/png"
+          },
+    ]
 }
