@@ -1,45 +1,42 @@
-const BASE = 'https://5f.glitch.me/';
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Index Page</title>
+</head>
+<body>
 
-async function register() {
-    const username = document.getElementById("username").value;
-    const password = document.getElementById("password").value;
+    <!-- ログイン後の表示内容 -->
+    <div id="dashboard" style="display: none;">
+        <p>ようこそ、<span id="username"></span>さん！</p>
+        <button id="logoutButton">ログアウト</button>
+        <p>ダッシュボードの内容...</p>
+        <!-- ここにダッシュボードの内容を追加 -->
+    </div>
 
-    const response = await fetch(BASE + "regist", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password })
-    });
+    <script>
+        window.onload = function() {
+            const loggedIn = localStorage.getItem('loggedIn');
+            const username = localStorage.getItem('username');
 
-    const result = await response.json();
-    document.getElementById("message").innerText = result.message || result.error;
+            if (loggedIn !== 'true') {
+                // ログインしていない場合はログインページにリダイレクト
+                window.location.href = 'login.html';
+            } else {
+                // ログインしている場合はダッシュボードを表示
+                document.getElementById('dashboard').style.display = 'block';
+                document.getElementById('username').textContent = username; // ユーザー名を表示
+            }
+        };
 
-    if (result.message === "Registration successful") {
-        setTimeout(() => {
-            window.location.href = "login.html"; // 登録後はlogin.htmlにリダイレクト
-        }, 2000);
-    }
-}
+        // ログアウト処理
+        document.getElementById('logoutButton').addEventListener('click', function() {
+            localStorage.removeItem('loggedIn');
+            localStorage.removeItem('username');  // ログアウト時にユーザー名も削除
+            window.location.href = 'login.html'; // ログインページにリダイレクト
+        });
+    </script>
 
-async function login() {
-    const username = document.getElementById("username").value;
-    const password = document.getElementById("password").value;
-
-    const response = await fetch(BASE + "auth", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password })
-    });
-
-    const result = await response.json();
-    if (result.valid) {
-        localStorage.setItem("username", username);
-        window.location.href = "index.html"; // ログイン成功後、index.htmlにリダイレクト
-    } else {
-        document.getElementById("message").innerText = "ログイン失敗";
-    }
-}
-
-function logout() {
-    localStorage.removeItem("username");
-    window.location.href = "login.html"; // ログアウト後、login.htmlにリダイレクト
-}
+</body>
+</html>
