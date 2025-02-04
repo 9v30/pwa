@@ -1,23 +1,20 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PWA App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>チャットアプリ</title>
+    <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
+    <script defer src="app.js"></script>
 </head>
-
 <body>
-    <h1>Welcome to My PWA App</h1>
-    <p>Add this app to your home screen for a better experience.</p>
-    <script>
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('service-worker.js').then(() => {
-                console.log('Service Worker registered successfully.');
-            });
-        }
-    </script>
+    <div class="container">
+        <h1>チャットアプリ</h1>
+        <div id="chatSection" class="hidden">
+            <h2>ようこそ <span id="userDisplay"></span> さん</h2>
+            <button onclick="logout()">ログアウト</button>
+        </div>
+    </div>
 </body>
-
 </html>
