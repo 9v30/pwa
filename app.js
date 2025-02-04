@@ -1,12 +1,5 @@
 const BASE = 'https://5f.glitch.me/';
 
-document.addEventListener("DOMContentLoaded", () => {
-    const savedUser = localStorage.getItem("username");
-    if (savedUser && window.location.pathname !== "index.html") {
-        window.location.href = "index.html"; // ログインしていればindex.htmlにリダイレクト
-    }
-});
-
 async function register() {
     const username = document.getElementById("username").value;
     const password = document.getElementById("password").value;
