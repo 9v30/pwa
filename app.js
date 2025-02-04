@@ -1,3 +1,5 @@
+const BASE = 'https://5f.glitch.me/';
+
 document.addEventListener("DOMContentLoaded", () => {
     const savedUser = localStorage.getItem("username");
     if (savedUser) {
@@ -9,7 +11,7 @@ async function register() {
     const username = document.getElementById("username").value;
     const password = document.getElementById("password").value;
 
-    const response = await fetch("/regist", {
+    const response = await fetch(BASE + "regist", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password })
@@ -29,7 +31,7 @@ async function login() {
     const username = document.getElementById("username").value;
     const password = document.getElementById("password").value;
 
-    const response = await fetch("/auth", {
+    const response = await fetch(BASE + "auth", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password })
