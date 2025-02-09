@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>安全ピン📌</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+
+    .container {
+      max-width: 400px;
+      margin: 20px auto;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+    }
+
+    input,
+    button,
+    select,
+    textarea {
+      margin: 10px 0;
+      padding: 10px;
+      width: 100%;
+      max-width: 100%;
+      box-sizing: border-box;
+      font-size: 16px;
+      height: 50px;
+      line-height: 1.5;
+    }
+
+    .statusText {
+      display: inline-block;
+      vertical-align: middle;
+      margin-left: 8px;
+      min-width: 80px;
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 60px;
+      height: 34px;
+      vertical-align: middle;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: red;
+      transition: .4s;
+      border-radius: 34px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 26px;
+      width: 26px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+
+    input:checked+.slider {
+      background-color: green;
+    }
+
+    input:checked+.slider:before {
+      transform: translateX(26px);
+    }
+
+    .status-list {
+      margin-top: 20px;
+      text-align: left;
+    }
+
+    .status-item {
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    /* 基本的なボタンスタイル */
+    button {
+      background-color: #4CAF50;
+      /* ボタンの背景色 */
+      color: white;
+      /* テキストの色 */
+      border: none;
+      /* ボーダーを消す */
+      padding: 15px 30px;
+      /* 内側の余白（上下15px, 左右30px） */
+      font-size: 1.2rem;
+      /* フォントサイズ（相対単位） */
+      border-radius: 10px;
+      /* 角を丸くする */
+      cursor: pointer;
+      /* マウスオーバー時にポインタが表示される */
+      width: 100%;
+      /* ボタンを横幅いっぱいに広げる */
+      max-width: 350px;
+      /* 最大幅を350pxに制限 */
+      margin: 10px auto;
+      /* 上下にマージンを追加、中央に配置 */
+      transition: background-color 0.3s, transform 0.2s;
+      /* 背景色とアニメーション */
+      box-sizing: border-box;
+      /* パディングを含めた幅の調整 */
+    }
+
+
+
+
+    button:not(:disabled) {
+      background-color: #4CAF50;
+      /* 緑 */
+    }
+
+    button:disabled {
+      background-color: #BCBCBC;
+      /* 灰色 */
+    }
+
+    #toast-container {
+      position: fixed;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .toast {
+      min-width: 250px;
+      padding: 15px;
+      margin: 5px 0;
+      border-radius: 8px;
+      color: white;
+      font-size: 16px;
+      text-align: center;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+      opacity: 0;
+      transform: translateY(-20px);
+      transition: opacity 0.3s, transform 0.3s;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .toast.info {
+      background-color: #3498db;
+    }
+
+    .toast.success {
+      background-color: #2ecc71;
+    }
+
+    .toast.warning {
+      background-color: #f39c12;
+    }
+
+    .toast.error {
+      background-color: #e74c3c;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="toast-container"></div>
+
+  <div class="container">
+    <h2>安全ピン📌</h2>
+
+    <h3><span id="profile" style="color: green;"></span>としてログイン中</h3>
+    <!-- ステータス更新 -->
+    <div>
+      <label class="switch">
+        <input type="checkbox" id="status">
+        <span class="slider"></span>
+      </label>
+      <span class="statusText" id="statusText">寝てる</span>
+    </div>
+
+    <input type="text" id="message" placeholder="ひとこと">
+    <select id="presetMessage" onchange="handlePresetChange()">
+      <option value="">カスタム</option>
+      <option value="ご飯なう">ご飯なう</option>
+      <option value="作業なう">作業なう</option>
+      <option value="通話可能">通話可能</option>
+    </select>
+    <button id="updateStatus" onclick="updateStatus()">更新</button>
+
+    <!-- 他の人のステータス一覧 -->
+    <h3>みんなのステータス</h3>
+    <div id="statusList" class="status-list"></div>
+  </div>
+
+  <script>
+    const BASE_URL = "https://5f.glitch.me/";
+    const API_URL = "https://5f.glitch.me/status";
+    let user = {};
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const userId = localStorage.getItem("userId");
+      const password = localStorage.getItem("password");
+
+      fetch(BASE_URL + 'login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ userId, password })
+      })
+        .then(res => {
+          if (res.status === 400) {
+            localStorage.removeItem("userId");
+            localStorage.removeItem("password");
+            window.location.href = "/register.html";
+          }
+          return res.json();
+        })
+        .then(data => {
+          user = data.user;
+          document.getElementById("profile").textContent = user.userId;
+        })
+        .catch(error => console.error(error));
+
+      loadStatus();
+
+      fetch(BASE_URL + 'status?userId=' + userId)
+        .then(res => res.json())
+        .then(data => {
+          document.getElementById("status").checked = data.isAwake;
+          document.getElementById("statusText").textContent = data.isAwake ? "起床中" : "就寝中";
+
+          document.getElementById("message").value = data.message === "(未設定)" ? "" : data.message;
+
+          if ([...document.getElementById("presetMessage").options].map(opt => opt.value).includes(data.message)) {
+            document.getElementById("message").disabled = true;
+            document.getElementById("presetMessage").value = data.message;
+          }
+        })
+        .catch(err => console.error(err));
+
+      document.getElementById("status").addEventListener("change", (event) => {
+        document.getElementById("statusText").textContent = event.target.checked ? "起床中" : "就寝中";
+      });
+
+    });
+
+
+    function updateStatus() {
+      const isAwake = document.getElementById("status").checked;
+      const message = document.getElementById("message").value.trim();
+
+      document.getElementById("updateStatus").textContent = "更新中...";
+      document.getElementById("updateStatus").disabled = true;
+
+      const userId = localStorage.getItem("userId");
+      const password = localStorage.getItem("password");
+
+      fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isAwake, message, userId, password })
+      })
+        .then(res => res.json())
+        .then(async () => {
+          await loadStatus();
+          toast("更新しました！", "success");
+        })
+        .catch(() => toast("サーバーエラー", "error"))
+        .finally(() => {
+          document.getElementById("updateStatus").textContent = "更新";
+          document.getElementById("updateStatus").disabled = false;
+        });
+    }
+
+    // ステータス一覧を取得
+    async function loadStatus() {
+      try {
+        const res = await fetch(API_URL); // fetchをawaitで待機
+        const statuses = await res.json(); // レスポンスをjsonに変換して待機
+
+        const statusList = document.getElementById("statusList");
+        statusList.innerHTML = ""; // リストをリセット
+
+        statuses.forEach(({ userId, isAwake, message, time }) => {
+          const item = document.createElement("div");
+          item.classList.add("status-item");
+          item.innerHTML = `<strong>${userId}</strong> - <span style="color:${isAwake ? 'green' : 'red'};">${isAwake ? "起床中" : "就寝中"}</span>
+                        <br>「${message}」 <small>(${time})</small>`;
+          statusList.appendChild(item);
+        });
+      } catch (error) {
+        toast("データ取得エラー", "warning"); // エラー時の処理
+      }
+    }
+
+    function handlePresetChange() {
+      const preset = document.getElementById("presetMessage").value;
+      const messageInput = document.getElementById("message");
+      if (preset === "") {
+        messageInput.disabled = false;
+        messageInput.value = "";
+      } else {
+        messageInput.disabled = true;
+        messageInput.value = preset;
+      }
+    }
+
+    function toast(message, type = 'info', duration = 3000) {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.textContent = message;
+      container.appendChild(toast);
+
+      setTimeout(() => toast.classList.add('show'), 100);
+
+      setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+      }, duration);
+    }
+  </script>
+
+</body>
+
+</html>
