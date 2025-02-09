@@ -1,15 +1,15 @@
 {
-    "name": "My PWA App",
-    "short_name": "PWA",
-    "id": "/index.html",
-    "start_url": "/index.html",
+    "name": "安全ピン📌",
+    "short_name": "安全ピン📌",
+    "id": "/home.html",
+    "start_url": "/home.html",
     "display": "standalone",
     "background_color": "#ffffff",
     "theme_color": "#000000",
     "icons": [
         {
-            "src": "x144.png",
-            "sizes": "144x144",
+            "src": "pwa_icon.png",
+            "sizes": "256x256",
             "type": "image/png"
         }
     ]
