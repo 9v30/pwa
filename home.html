@@ -96,6 +96,34 @@
       border-bottom: 1px solid #ddd;
     }
 
+.user-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #ccc;
+}
+
+.user-name {
+  font-weight: bold;
+}
+
+.actions {
+  display: flex;
+  gap: 10px; /* リンク間の間隔 */
+}
+
+.actions a {
+  text-decoration: none;
+  color: #007bff;
+  font-size: 14px;
+}
+
+.actions a:hover {
+  text-decoration: underline;
+}
+
+
     /* 基本的なボタンスタイル */
     button {
       background-color: #4CAF50;
@@ -216,6 +244,14 @@
     <div id="statusList" class="status-list"></div>
   </div>
 
+  <div class="container">
+    <h2>フレンド申請💫</h2>
+    <h3>承認待ち</h3>
+    <div id="request" class="list"></div>
+    <h3>新しく探す</h3>
+    <div id="featured" class="list"></div>
+  </div>
+
   <script>
     const BASE_URL = "https://5f.glitch.me/";
     const API_URL = "https://5f.glitch.me/status";
@@ -247,6 +283,7 @@
         .catch(error => console.error(error));
 
       loadStatus();
+      loadFriendsTab();
 
       fetch(`${BASE_URL}status?userId=${localStorage.getItem("userId")}&password=${localStorage.getItem("password")}`)
         .then(res => res.json())
@@ -288,6 +325,7 @@
         .then(res => res.json())
         .then(async () => {
           await loadStatus();
+          await loadFriendsTab();
           toast("更新しました！", "success");
         })
         .catch(() => toast("サーバーエラー", "error"))
@@ -302,12 +340,15 @@
       try {
         const userId = localStorage.getItem("userId");
         const password = localStorage.getItem("password");
+        const selfRes = await fetch(`${BASE_URL}status?userId=${userId}&password=${password}`);
+        const self = await selfRes.json();
         const res = await fetch(BASE_URL + "friend/status" + `?userId=${userId}&password=${password}`); // fetchをawaitで待機
-        const statuses = await res.json(); // レスポンスをjsonに変換して待機
+        const statuses = await res.json();
 
         const statusList = document.getElementById("statusList");
-        statusList.innerHTML = ""; // リストをリセット
+        statusList.innerHTML = "";
 
+        statuses.unshift(self);
         statuses.forEach(({ userId, isAwake, message, time }) => {
           const item = document.createElement("div");
           item.classList.add("status-item");
@@ -317,9 +358,123 @@
         });
       } catch (error) {
         console.error(error);
-        toast("データ取得エラー", "warning"); // エラー時の処理
+        toast("データ取得エラー", "warning");
       }
     }
+
+async function loadFriendsTab() {
+  const userId = localStorage.getItem("userId");
+  const password = localStorage.getItem("password");
+
+  try {
+    const res = await fetch(`${BASE_URL}friend/list?userId=${userId}&password=${password}`);
+    const list = await res.json();
+
+    const request = document.getElementById("request");
+    request.innerHTML = "";
+
+    async function accept(friendId) {
+      await fetch(`${BASE_URL}friend/send`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ userId, password, friendId })
+      });
+      toast("フレンドになりました！", "success");
+      await loadStatus();
+      await loadFriendsTab();
+    }
+
+    async function reject(friendId) {
+      await fetch(`${BASE_URL}friend/delete`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ userId, password, friendId })
+      });
+      toast("フレンドを削除しました", "success");
+      await loadStatus();
+      await loadFriendsTab();
+    }
+
+    list.pending.forEach((userId) => {
+      const item = document.createElement("div");
+      item.classList.add("user-item");
+      item.innerHTML = `
+    <strong class="user-name">${userId}</strong>
+    <span class="actions">
+      <a href="javascript:void(0);" class="accept" data-userid="${userId}">承認する</a>
+      <a href="javascript:void(0);" class="reject" data-userid="${userId}">断る</a>
+    </span>
+  `;
+      request.appendChild(item);
+
+      item.querySelector('.accept').onclick = (function (userId) {
+        return function () {
+          accept(userId);
+        };
+      })(userId);
+
+      item.querySelector('.reject').onclick = (function (userId) {
+        return function () {
+          reject(userId);
+        };
+      })(userId);
+    });
+  } catch (error) {
+    console.error(error);
+    toast("データ取得エラー", "warning");
+  }
+
+  try {
+    const res = await fetch(`${BASE_URL}users`);
+    const list = await res.json();
+
+    const featured = document.getElementById("featured");
+    featured.innerHTML = "";
+
+    async function send(friendId) {
+      try {
+        await fetch(`${BASE_URL}friend/send`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ userId, password, friendId })
+        });
+        toast("フレンド申請を送信しました！", "success");
+      } catch (error) {
+        toast("エラーが発生しました", "error");
+      }
+      await loadStatus();
+      await loadFriendsTab();
+    }
+
+    list.filter(elem => elem !== userId).forEach((userId) => {
+      const item = document.createElement("div");
+      item.classList.add("user-item");
+      item.innerHTML = `
+    <strong class="user-name">${userId}</strong>
+    <span class="actions">
+      <a href="javascript:void(0);" class="send" data-userid="${userId}">申請する</a>
+    </span>
+  `;
+      featured.appendChild(item);
+
+      item.querySelector('.send').onclick = (function (userId) {
+        return function () {
+          send(userId);
+        };
+      })(userId);
+
+    });
+  } catch (error) {
+    console.error(error);
+    toast("データ取得エラー", "warning");
+  }
+}
 
     function handlePresetChange() {
       const preset = document.getElementById("presetMessage").value;
