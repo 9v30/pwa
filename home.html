@@ -248,7 +248,7 @@
 
       loadStatus();
 
-      fetch(BASE_URL + 'status?userId=' + userId)
+      fetch(`${BASE_URL}status?userId=${localStorage.getItem("userId")}&password=${localStorage.getItem("password")}`)
         .then(res => res.json())
         .then(data => {
           document.getElementById("status").checked = data.isAwake;
