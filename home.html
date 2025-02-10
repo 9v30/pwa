@@ -302,13 +302,7 @@
       try {
         const userId = localStorage.getItem("userId");
         const password = localStorage.getItem("password");
-        const res = await fetch(BASE_URL + "friend/status", {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ userId, password })
-        }); // fetchをawaitで待機
+        const res = await fetch(BASE_URL + "friend/status" + `?userId=${userId}&password=${password}`); // fetchをawaitで待機
         const statuses = await res.json(); // レスポンスをjsonに変換して待機
 
         const statusList = document.getElementById("statusList");
