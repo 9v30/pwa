@@ -320,6 +320,7 @@
           statusList.appendChild(item);
         });
       } catch (error) {
+        console.error(error);
         toast("データ取得エラー", "warning"); // エラー時の処理
       }
     }
