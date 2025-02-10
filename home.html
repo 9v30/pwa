@@ -300,6 +300,8 @@
     // ステータス一覧を取得
     async function loadStatus() {
       try {
+        const userId = localStorage.getItem("userId");
+        const password = localStorage.getItem("password");
         const res = await fetch(BASE_URL + "friend/status", {
           method: 'POST',
           headers: {
