@@ -210,6 +210,7 @@
     .toast.error {
       background-color: #e74c3c;
     }
+
   </style>
 </head>
 
@@ -332,6 +333,8 @@
         const self = await selfRes.json();
         const res = await fetch(BASE_URL + "friend/status" + `?userId=${userId}&password=${password}`);
         const statuses = await res.json();
+        const _top = await fetch(`${BASE_URL}topuser`);
+        const top = await _top.json();
 
         const statusList = document.getElementById("statusList");
         statusList.innerHTML = "";
@@ -339,14 +342,14 @@
         (() => {
           const item = document.createElement("div");
           item.classList.add("status-item");
-          item.innerHTML = `<strong><a href="javascript:void(0);" onclick="showUserInfo('${userId}')")>${userId}<a></strong> - <span style="color:${self.isAwake ? 'green' : 'red'};">${self.isAwake ? "起床中" : "就寝中"}</span>
+          item.innerHTML = `<strong><a href="javascript:void(0);" onclick="showUserInfo('${userId}')")>${userId}</a></strong>${userId === top ? "👑" : ""} - <span style="color:${self.isAwake ? 'green' : 'red'};">${self.isAwake ? "起床中" : "就寝中"}</span>
                         <br>「${self.post ? self.post.content : ""}」 <small>(${self.post ? unixToJST(self.post.date) : ""})</small>`;
           statusList.appendChild(item);
         })();
         Object.keys(statuses).forEach((userId) => {
           const item = document.createElement("div");
           item.classList.add("status-item");
-          item.innerHTML = `<strong><a href="javascript:void(0);" onclick="showUserInfo('${userId}')")>${userId}<a></strong> - <span style="color:${statuses[userId].isAwake ? 'green' : 'red'};">${statuses[userId].isAwake ? "起床中" : "就寝中"}</span>
+          item.innerHTML = `<strong><a href="javascript:void(0);" onclick="showUserInfo('${userId}')")>${userId}</a></strong>${userId === top ? "👑" : ""} - <span style="color:${statuses[userId].isAwake ? 'green' : 'red'};">${statuses[userId].isAwake ? "起床中" : "就寝中"}</span>
                         <br>「${statuses[userId].post ? statuses[userId].post.content : ""}」 <small>(${statuses[userId].post ? unixToJST(statuses[userId].post.date) : ""})</small>`;
           statusList.appendChild(item);
         });
