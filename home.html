@@ -452,7 +452,7 @@ async function loadFriendsTab() {
       await loadFriendsTab();
     }
 
-    list.filter(elem => elem !== userId).forEach((userId) => {
+    list.filter(elem => elem !== userId && !friends.friends.includes(elem) && !friends.pending.includes(elem)).forEach((userId) => {
       const item = document.createElement("div");
       item.classList.add("user-item");
       item.innerHTML = `
