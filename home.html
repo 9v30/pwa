@@ -526,7 +526,10 @@ async function loadFriendsTab() {
               <span style="font-size: 1.2em; font-weight: bold;">${userData.userId}</span>
             </div>
             <div style="margin-bottom: 15px; font-size: 0.9em; color: gray;">
-              フレンド数: ${userData.friends} | 投稿数: ${userData.posts.length}
+              フレンド数: ${userData.friends} | 投稿数: ${userData.posts.length} | 🔥${userData.currentStreak}
+            </div>
+            <div style="margin-bottom: 15px; font-size: 0.9em; color: gray;">
+              ${unixToJST(userData.createdAt).split(" ")[0]} に参加
             </div>
             <ul style="list-style: none; padding: 0;">
               ${userData.posts.map(post => `
