@@ -1,69 +1,77 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PWA ダウンロード</title>
-    <link rel="manifest" href="manifest.json">
-    <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            // PWAとして開かれているかチェック
-            if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
-                window.location.href = "home.html"; // PWAならリダイレクト
-            }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PWA ダウンロード</title>
+  <link rel="manifest" href="manifest.json">
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      // PWAとして開かれているかチェック
+      if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
+        window.location.href = "home.html"; // PWAならリダイレクト
+      }
 
-            // ユーザーエージェント判定
-            const userAgent = navigator.userAgent.toLowerCase();
-            let osType = "unknown";
-            let installInstructions = "";
+      // ユーザーエージェント判定
+      const userAgent = navigator.userAgent.toLowerCase();
+      let osType = "unknown";
+      let installInstructions = "";
 
-            if (/iphone|ipad|ipod/.test(userAgent)) {
-                osType = "iOS";
-                installInstructions = `
-                    <h2>iOS / Safari</h2>
-                    <p>画面下部の「共有」ボタン（□↑）をタップし、「ホーム画面に追加」を選択してください。</p>
-                `;
-            } else if (/android/.test(userAgent)) {
-                osType = "Android";
-                installInstructions = `
-                    <h2>Android / Chrome</h2>
-                    <p>アドレスバーの右側にある「︙」をタップし、「ホーム画面に追加」を選択してください。</p>
-                `;
-            } else if (/win/.test(userAgent) || /windows nt/.test(userAgent)) {
-                osType = "Windows";
-                installInstructions = `
-                    <h2>Windows / Chrome</h2>
-                    <p>アドレスバーの右側にある「+」アイコンをクリックし、「インストール」を選択してください。</p>
-                `;
-            } else if (/mac os/.test(userAgent) || /macintosh/.test(userAgent)) {
-                osType = "macOS";
-                installInstructions = `
-                    <h2>macOS / Chrome</h2>
-                    <p>アドレスバーの右側にある「+」アイコンをクリックし、「インストール」を選択してください。</p>
-                `;
-            } else {
-                installInstructions = "<p>このデバイスではPWAのインストールがサポートされていない可能性があります。</p>";
-            }
+      if (/iphone|ipad|ipod/.test(userAgent)) {
+        osType = "iOS";
+        installInstructions = `
+                <h2>iOS / Safari</h2>
+                <p>画面下部の「共有」ボタン（□↑）をタップし、「ホーム画面に追加」を選択してください。</p>
+            `;
+      } else if (/android/.test(userAgent)) {
+        osType = "Android";
+        installInstructions = `
+                <h2>Android / Chrome</h2>
+                <p>アドレスバーの右側にある「︙」をタップし、「ホーム画面に追加」を選択してください。</p>
+            `;
+      } else if (/win/.test(userAgent) || /windows nt/.test(userAgent)) {
+        osType = "Windows";
+        installInstructions = `
+                <h2>Windows / Chrome</h2>
+                <p>アドレスバーの右側にある「+」アイコンをクリックし、「インストール」を選択してください。</p>
+            `;
+      } else if (/mac os/.test(userAgent) || /macintosh/.test(userAgent)) {
+        osType = "macOS";
+        installInstructions = `
+                <h2>macOS / Chrome</h2>
+                <p>アドレスバーの右側にある「+」アイコンをクリックし、「インストール」を選択してください。</p>
+            `;
+      } else {
+        installInstructions = "<p>このデバイスではPWAのインストールがサポートされていない可能性があります。</p>";
+      }
 
-            document.getElementById("install-instructions").innerHTML = installInstructions;
-            console.log("User OS:", osType);
-        });
-    </script>
+      console.log("User OS:", osType);
+
+      // 1.5秒後に判定結果を表示
+      setTimeout(() => {
+        document.getElementById("install-instructions").innerHTML = installInstructions;
+      }, 1500);
+    });
+  </script>
+
 </head>
-<body>
-    <h1>PWAをインストールしよう</h1>
-    <div id="install-instructions">
-        <p>デバイスを判定中...</p>
-    </div>
 
-    <script>
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js').then(() => {
-                console.log("Service Worker registered!");
-            }).catch(err => {
-                console.error("Service Worker registration failed:", err);
-            });
-        }
-    </script>
+<body>
+  <h1>PWAをインストールしよう</h1>
+  <div id="install-instructions">
+    <p>デバイスを判定中...</p>
+  </div>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js').then(() => {
+        console.log("Service Worker registered!");
+      }).catch(err => {
+        console.error("Service Worker registration failed:", err);
+      });
+    }
+  </script>
 </body>
+
 </html>
