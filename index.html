@@ -86,8 +86,6 @@
         installInstructions = "<p>このデバイスではPWAのインストールがサポートされていない可能性があります。</p>";
       }
 
-      console.log("User OS:", osType);
-
       // 1.5秒後に判定結果を表示
       setTimeout(() => {
         document.getElementById("install-instructions").innerHTML = installInstructions;
