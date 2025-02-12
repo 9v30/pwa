@@ -535,7 +535,7 @@ async function loadFriendsTab() {
               ${unixToJST(userData.createdAt).split(" ")[0]} に参加
             </div>
             <ul style="list-style: none; padding: 0;">
-              ${userData.posts.map(post => `
+              ${userData.posts.reverse().map(post => `
                 <li style="
                   margin-bottom: 10px;
                   padding: 10px;
