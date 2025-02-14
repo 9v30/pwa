@@ -96,32 +96,33 @@
       border-bottom: 1px solid #ddd;
     }
 
-.user-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 0;
-  border-bottom: 1px solid #ccc;
-}
+    .user-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid #ccc;
+    }
 
-.user-name {
-  font-weight: bold;
-}
+    .user-name {
+      font-weight: bold;
+    }
 
-.actions {
-  display: flex;
-  gap: 10px; /* リンク間の間隔 */
-}
+    .actions {
+      display: flex;
+      gap: 10px;
+      /* リンク間の間隔 */
+    }
 
-.actions a {
-  text-decoration: none;
-  color: #007bff;
-  font-size: 14px;
-}
+    .actions a {
+      text-decoration: none;
+      color: #007bff;
+      font-size: 14px;
+    }
 
-.actions a:hover {
-  text-decoration: underline;
-}
+    .actions a:hover {
+      text-decoration: underline;
+    }
 
 
     /* 基本的なボタンスタイル */
@@ -210,7 +211,6 @@
     .toast.error {
       background-color: #e74c3c;
     }
-
   </style>
 </head>
 
@@ -223,6 +223,7 @@
     <h2>安全ピン📌 - Home</h2>
 
     <h3><span id="profile" style="color: green;"></span>としてログイン中</h3>
+    <p><strong><a href="settings.html">設定を開く</a></strong></p>
     <!-- ステータス更新 -->
     <div>
       <label class="switch">
@@ -342,136 +343,174 @@
         (() => {
           const item = document.createElement("div");
           item.classList.add("status-item");
-          item.innerHTML = `<strong><a href="javascript:void(0);" onclick="showUserInfo('${userId}')")>${userId}</a></strong>${userId === top ? "👑" : ""} - <span style="color:${self.isAwake ? 'green' : 'red'};">${self.isAwake ? "起床中" : "就寝中"}</span>
-                        <br>「${self.post ? self.post.content : ""}」 <small>(${self.post ? unixToJST(self.post.date) : ""})</small>`;
+
+          item.innerHTML = `
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <img src="https://5f.glitch.me/icons/${userId}.png" onerror="this.onerror=null; this.src='https://placehold.jp/128x128.png'" alt="アイコン" style="
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background-color: gray;
+      ">
+      <strong>
+        <a href="javascript:void(0);" onclick="showUserInfo('${userId}')">${userId}</a>
+      </strong>${userId === top ? "👑" : ""}
+      - <span style="color:${self.isAwake ? 'green' : 'red'};">
+        ${self.isAwake ? "起床中" : "就寝中"}
+      </span>
+    </div>
+    「${self.post ? self.post.content : ""}」
+    <small>(${self.post ? unixToJST(self.post.date) : ""})</small>
+  `;
+
           statusList.appendChild(item);
         })();
         Object.keys(statuses).forEach((userId) => {
           const item = document.createElement("div");
           item.classList.add("status-item");
-          item.innerHTML = `<strong><a href="javascript:void(0);" onclick="showUserInfo('${userId}')")>${userId}</a></strong>${userId === top ? "👑" : ""} - <span style="color:${statuses[userId].isAwake ? 'green' : 'red'};">${statuses[userId].isAwake ? "起床中" : "就寝中"}</span>
-                        <br>「${statuses[userId].post ? statuses[userId].post.content : ""}」 <small>(${statuses[userId].post ? unixToJST(statuses[userId].post.date) : ""})</small>`;
+
+          item.innerHTML = `
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <img src="https://5f.glitch.me/icons/${userId}.png" onerror="this.onerror=null; this.src='https://placehold.jp/128x128.png'" alt="アイコン" style="
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background-color: gray;
+      ">
+      <strong>
+        <a href="javascript:void(0);" onclick="showUserInfo('${userId}')">${userId}</a>
+      </strong>${userId === top ? "👑" : ""}
+      - <span style="color:${statuses[userId].isAwake ? 'green' : 'red'};">
+        ${statuses[userId].isAwake ? "起床中" : "就寝中"}
+      </span>
+    </div>
+    「${statuses[userId].post ? statuses[userId].post.content : ""}」
+    <small>(${statuses[userId].post ? unixToJST(statuses[userId].post.date) : ""})</small>
+  `;
+
           statusList.appendChild(item);
         });
+
       } catch (error) {
         console.error(error);
         toast("データ取得エラー", "warning");
       }
     }
 
-async function loadFriendsTab() {
-  const userId = localStorage.getItem("userId");
-  const password = localStorage.getItem("password");
+    async function loadFriendsTab() {
+      const userId = localStorage.getItem("userId");
+      const password = localStorage.getItem("password");
 
-  const _friends = await fetch(`${BASE_URL}friend/list?userId=${userId}&password=${password}`);
-  const friends = await _friends.json();
+      const _friends = await fetch(`${BASE_URL}friend/list?userId=${userId}&password=${password}`);
+      const friends = await _friends.json();
 
-  try {
-    const request = document.getElementById("request");
-    request.innerHTML = "";
+      try {
+        const request = document.getElementById("request");
+        request.innerHTML = "";
 
-    async function accept(friendId) {
-      await fetch(`${BASE_URL}friend/send`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ userId, password, friendId })
-      });
-      toast("フレンドになりました！", "success");
-      await loadStatus();
-      await loadFriendsTab();
-    }
+        async function accept(friendId) {
+          await fetch(`${BASE_URL}friend/send`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ userId, password, friendId })
+          });
+          toast("フレンドになりました！", "success");
+          await loadStatus();
+          await loadFriendsTab();
+        }
 
-    async function reject(friendId) {
-      await fetch(`${BASE_URL}friend/delete`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ userId, password, friendId })
-      });
-      toast("フレンドを削除しました", "success");
-      await loadStatus();
-      await loadFriendsTab();
-    }
+        async function reject(friendId) {
+          await fetch(`${BASE_URL}friend/delete`, {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ userId, password, friendId })
+          });
+          toast("フレンドを削除しました", "success");
+          await loadStatus();
+          await loadFriendsTab();
+        }
 
-    friends.pending.forEach((userId) => {
-      const item = document.createElement("div");
-      item.classList.add("user-item");
-      item.innerHTML = `
+        friends.pending.forEach((userId) => {
+          const item = document.createElement("div");
+          item.classList.add("user-item");
+          item.innerHTML = `
     <strong class="user-name">${userId}</strong>
     <span class="actions">
       <a href="javascript:void(0);" class="accept" data-userid="${userId}">承認する</a>
       <a href="javascript:void(0);" class="reject" data-userid="${userId}">断る</a>
     </span>
   `;
-      request.appendChild(item);
+          request.appendChild(item);
 
-      item.querySelector('.accept').onclick = (function (userId) {
-        return function () {
-          accept(userId);
-        };
-      })(userId);
+          item.querySelector('.accept').onclick = (function (userId) {
+            return function () {
+              accept(userId);
+            };
+          })(userId);
 
-      item.querySelector('.reject').onclick = (function (userId) {
-        return function () {
-          reject(userId);
-        };
-      })(userId);
-    });
-  } catch (error) {
-    console.error(error);
-    toast("データ取得エラー", "warning");
-  }
-
-  try {
-    const _list = await fetch(`${BASE_URL}users`);
-    const list = await _list.json();
-
-    const featured = document.getElementById("featured");
-    featured.innerHTML = "";
-
-    async function send(friendId) {
-      try {
-        await fetch(`${BASE_URL}friend/send`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ userId, password, friendId })
+          item.querySelector('.reject').onclick = (function (userId) {
+            return function () {
+              reject(userId);
+            };
+          })(userId);
         });
-        toast("フレンド申請を送信しました！", "success");
       } catch (error) {
-        toast("エラーが発生しました", "error");
+        console.error(error);
+        toast("データ取得エラー", "warning");
       }
-      await loadStatus();
-      await loadFriendsTab();
-    }
 
-    list.filter(elem => elem !== userId && !friends.friends.includes(elem) && !friends.pending.includes(elem)).forEach((userId) => {
-      const item = document.createElement("div");
-      item.classList.add("user-item");
-      item.innerHTML = `
+      try {
+        const _list = await fetch(`${BASE_URL}users`);
+        const list = await _list.json();
+
+        const featured = document.getElementById("featured");
+        featured.innerHTML = "";
+
+        async function send(friendId) {
+          try {
+            await fetch(`${BASE_URL}friend/send`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({ userId, password, friendId })
+            });
+            toast("フレンド申請を送信しました！", "success");
+          } catch (error) {
+            toast("エラーが発生しました", "error");
+          }
+          await loadStatus();
+          await loadFriendsTab();
+        }
+
+        console.log(list, friends)
+        list.filter(elem => elem !== userId && !friends.friends.includes(elem) && !friends.pending.includes(elem)).forEach((userId) => {
+          const item = document.createElement("div");
+          item.classList.add("user-item");
+          item.innerHTML = `
     <strong class="user-name">${userId}</strong>
     <span class="actions">
       <a href="javascript:void(0);" class="send" data-userid="${userId}">申請する</a>
     </span>
   `;
-      featured.appendChild(item);
+          featured.appendChild(item);
 
-      item.querySelector('.send').onclick = (function (userId) {
-        return function () {
-          send(userId);
-        };
-      })(userId);
+          item.querySelector('.send').onclick = (function (userId) {
+            return function () {
+              send(userId);
+            };
+          })(userId);
 
-    });
-  } catch (error) {
-    console.error(error);
-    toast("データ取得エラー", "warning");
-  }
-}
+        });
+      } catch (error) {
+        console.error(error);
+        toast("データ取得エラー", "warning");
+      }
+    }
 
 
 
@@ -558,9 +597,9 @@ async function loadFriendsTab() {
       }
     }
 
-function unixToJST(unixTime) {
-    const date = new Date(unixTime * 1000); //
-    const options = {
+    function unixToJST(unixTime) {
+      const date = new Date(unixTime * 1000); //
+      const options = {
         year: 'numeric',
         month: '2-digit',
         day: '2-digit',
@@ -568,10 +607,10 @@ function unixToJST(unixTime) {
         minute: '2-digit',
         second: '2-digit',
         timeZone: 'Asia/Tokyo' // 日本時間を指定
-    };
-    const formatter = new Intl.DateTimeFormat('ja-JP', options);
-    return formatter.format(date);
-}
+      };
+      const formatter = new Intl.DateTimeFormat('ja-JP', options);
+      return formatter.format(date);
+    }
   </script>
 
 </body>
