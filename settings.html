@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>アイコン設定</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+    .container {
+      max-width: 400px;
+      margin: 20px auto;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+    }
+    #preview {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background-color: #ddd;
+      margin-bottom: 10px;
+    }
+    input[type="file"] {
+      display: none;
+    }
+    label {
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button {
+      margin-top: 10px;
+      padding: 10px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>アイコンを設定</h2>
+    <img id="preview" src="https://placehold.jp/100x100.png" alt="アイコン">
+    <br>
+    <input type="file" id="fileInput" accept="image/*">
+    <label for="fileInput">画像を選択</label>
+    <button id="uploadBtn">保存</button>
+
+    <p><strong><a href="home.html">元のページに戻る</a></strong></p>
+  </div>
+  <script>
+    const userId = localStorage.getItem("userId");
+    const password = localStorage.getItem("password");
+    const fileInput = document.getElementById("fileInput");
+    const preview = document.getElementById("preview");
+    const uploadBtn = document.getElementById("uploadBtn");
+
+    fileInput.addEventListener("change", event => {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = e => preview.src = e.target.result;
+        reader.readAsDataURL(file);
+      }
+    });
+
+    uploadBtn.addEventListener("click", async () => {
+      const file = fileInput.files[0];
+      if (!file) return alert("画像を選択してください");
+      const formData = new FormData();
+      formData.append("icon", file);
+      formData.append("userId", userId);
+      formData.append("password", password);
+      const response = await fetch("/upload-icon", { method: "POST", body: formData });
+      const result = await response.json();
+      if (response.ok) {
+        preview.src = result.icon;
+        alert("アイコンを更新しました");
+      } else {
+        alert("アップロードに失敗しました");
+      }
+    });
+  </script>
+</body>
+</html>
